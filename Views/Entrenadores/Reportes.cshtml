@@ -1,0 +1,76 @@
+@model ReporteViewModel
+@{
+    ViewData["Title"] = "Reportes";
+}
+
+<h2 class="mb-3"><i class="bi bi-bar-chart-fill"></i> Reportes y estadísticas</h2>
+
+@if (Model.Total == 0)
+{
+    <div class="alert alert-warning">No hay datos para generar reportes. Registra al menos un entrenador.</div>
+}
+else
+{
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="card tarjeta"><div class="card-body">
+                <div class="dato-etiqueta">Total de entrenadores</div>
+                <div class="fs-3 fw-bold">@Model.Total</div>
+            </div></div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card tarjeta"><div class="card-body">
+                <div class="dato-etiqueta">Activos / Inactivos</div>
+                <div class="fs-3 fw-bold">@Model.Activos / @Model.Inactivos</div>
+            </div></div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card tarjeta"><div class="card-body">
+                <div class="dato-etiqueta">Planilla mensual (activos)</div>
+                <div class="fs-3 fw-bold">Bs @Model.PlanillaMensual.ToString("N2")</div>
+            </div></div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card tarjeta"><div class="card-body">
+                <div class="dato-etiqueta">Salario promedio</div>
+                <div class="fs-3 fw-bold">Bs @Model.SalarioPromedio.ToString("N2")</div>
+            </div></div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-5">
+            <div class="card tarjeta h-100"><div class="card-body">
+                <h5 class="card-title">Datos destacados</h5>
+                @if (Model.MasAntiguo is not null)
+                {
+                    <p class="mb-2"><span class="dato-etiqueta">Más antiguo:</span><br />
+                        <strong>@Model.MasAntiguo.NombreCompleto</strong> (@Model.MasAntiguo.AniosAntiguedad años)</p>
+                }
+                @if (Model.MayorSalario is not null)
+                {
+                    <p class="mb-0"><span class="dato-etiqueta">Mayor salario:</span><br />
+                        <strong>@Model.MayorSalario.NombreCompleto</strong> (Bs @Model.MayorSalario.Salario.ToString("N2"))</p>
+                }
+            </div></div>
+        </div>
+        <div class="col-lg-7">
+            <div class="card tarjeta h-100"><div class="card-body">
+                <h5 class="card-title mb-3">Entrenadores por especialidad</h5>
+                @foreach (var item in Model.PorEspecialidad)
+                {
+                    int porcentaje = (int)Math.Round(100.0 * item.Cantidad / Model.Total);
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small">
+                            <span>@item.Especialidad</span>
+                            <span>@item.Cantidad</span>
+                        </div>
+                        <div class="progress" style="height: 14px;">
+                            <div class="progress-bar bg-primary" style="width: @(porcentaje)%"></div>
+                        </div>
+                    </div>
+                }
+            </div></div>
+        </div>
+    </div>
+}

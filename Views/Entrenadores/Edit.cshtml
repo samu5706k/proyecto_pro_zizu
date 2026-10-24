@@ -1,0 +1,18 @@
+@model Entrenador
+@{
+    ViewData["Title"] = "Editar entrenador";
+}
+
+<h2 class="mb-3"><i class="bi bi-pencil-square"></i> Editar entrenador</h2>
+
+<div class="card tarjeta">
+    <div class="card-body">
+        <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+            <partial name="_Formulario" model="Model" />
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Guardar cambios</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>

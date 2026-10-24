@@ -1,0 +1,36 @@
+@model Entrenador
+@{
+    ViewData["Title"] = "Detalle del entrenador";
+}
+
+<h2 class="mb-3"><i class="bi bi-person-badge"></i> @Model.NombreCompleto</h2>
+
+<div class="card tarjeta">
+    <div class="card-body">
+        <div class="row g-4">
+            <div class="col-md-4"><div class="dato-etiqueta">ID</div><div class="dato-valor">@Model.Id</div></div>
+            <div class="col-md-4"><div class="dato-etiqueta">CI</div><div class="dato-valor">@Model.Ci</div></div>
+            <div class="col-md-4">
+                <div class="dato-etiqueta">Estado</div>
+                <div class="dato-valor">
+                    @if (Model.Activo) { <span class="badge text-bg-success">Activo</span> }
+                    else { <span class="badge text-bg-secondary">Inactivo</span> }
+                </div>
+            </div>
+            <div class="col-md-4"><div class="dato-etiqueta">Teléfono</div><div class="dato-valor">@Model.Telefono</div></div>
+            <div class="col-md-4"><div class="dato-etiqueta">Correo</div><div class="dato-valor">@Model.Email</div></div>
+            <div class="col-md-4"><div class="dato-etiqueta">Especialidad</div><div class="dato-valor">@Model.Especialidad</div></div>
+            <div class="col-md-4">
+                <div class="dato-etiqueta">Fecha de contratación</div>
+                <div class="dato-valor">@Model.FechaContratacion.ToString("dd/MM/yyyy") (@Model.AniosAntiguedad años)</div>
+            </div>
+            <div class="col-md-4"><div class="dato-etiqueta">Salario mensual</div><div class="dato-valor">Bs @Model.Salario.ToString("N2")</div></div>
+        </div>
+
+        <div class="mt-4 d-flex gap-2">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary"><i class="bi bi-pencil"></i> Editar</a>
+            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger"><i class="bi bi-trash"></i> Eliminar</a>
+            <a asp-action="Index" class="btn btn-outline-secondary">Volver</a>
+        </div>
+    </div>
+</div>
