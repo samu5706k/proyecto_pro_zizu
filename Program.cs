@@ -9,6 +9,9 @@ builder.Services.AddControllersWithViews();
 // Registrar el repositorio de entrenadores.
 builder.Services.AddSingleton<EntrenadorRepositorio>();
 
+// Registra el repositorio de Cliente
+builder.Services.AddSingleton<ClienteRepositorio>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

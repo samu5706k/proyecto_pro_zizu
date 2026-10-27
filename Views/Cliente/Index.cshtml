@@ -1,0 +1,96 @@
+
+@model IEnumerable<Cliente>
+
+@{
+    ViewData["Title"] = "Clientes";
+    string? buscar = ViewBag.Buscar as string;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Gestión de clientes</h2>
+    <a asp-action="Create" class="btn btn-primary">
+        Registrar cliente
+    </a>
+</div>
+
+@if (TempData["Exito"] is string mensaje)
+{
+    <div class="alert alert-success">@mensaje</div>
+}
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" asp-action="Index" class="d-flex gap-2">
+            <input type="text" name="buscar" value="@buscar"
+                   class="form-control"
+                   placeholder="Buscar por nombre, CI, teléfono o correo" />
+
+            <button type="submit" class="btn btn-dark">Buscar</button>
+
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                Limpiar
+            </a>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        @if (!Model.Any())
+        {
+            <p>No hay clientes registrados o no se encontraron resultados.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre completo</th>
+                            <th>CI</th>
+                            <th>Teléfono</th>
+                            <th>Correo</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var c in Model)
+                        {
+                            <tr>
+                                <td>@c.Id</td>
+                                <td>@c.NombreCompleto</td>
+                                <td>@c.Ci</td>
+                                <td>@c.Telefono</td>
+                                <td>@c.Email</td>
+                                <td>
+                                    @if (c.Activo)
+                                    {
+                                        <span class="badge bg-success">Activo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Inactivo</span>
+                                    }
+                                </td>
+                                <td class="text-nowrap">
+                                    <a asp-action="Details" asp-route-id="@c.Id"
+                                       class="btn btn-sm btn-info">Ver</a>
+
+                                    <a asp-action="Edit" asp-route-id="@c.Id"
+                                       class="btn btn-sm btn-primary">Editar</a>
+
+                                    <a asp-action="Delete" asp-route-id="@c.Id"
+                                       class="btn btn-sm btn-danger">Eliminar</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <p class="text-muted">Total mostrado: @Model.Count()</p>
+        }
+    </div>
+</div>

@@ -1,0 +1,31 @@
+
+@model Cliente
+
+@{
+    ViewData["Title"] = "Eliminar cliente";
+}
+
+<h2 class="text-danger">Eliminar cliente</h2>
+
+<div class="card mt-3">
+    <div class="card-body">
+        <p>
+            ¿Estás seguro de que deseas eliminar a
+            <strong>@Model.NombreCompleto</strong>?
+        </p>
+
+        <p>CI: @Model.Ci</p>
+        <p>Teléfono: @Model.Telefono</p>
+        <p>Correo: @Model.Email</p>
+
+        <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+            <button type="submit" class="btn btn-danger">
+                Sí, eliminar
+            </button>
+
+            <a asp-action="Index" class="btn btn-secondary">
+                Cancelar
+            </a>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,56 @@
+
+@model Cliente
+
+@{
+    ViewData["Title"] = "Detalle del cliente";
+}
+
+<h2>Detalle del cliente</h2>
+
+<div class="card mt-3">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">ID</dt>
+            <dd class="col-sm-9">@Model.Id</dd>
+
+            <dt class="col-sm-3">Nombre completo</dt>
+            <dd class="col-sm-9">@Model.NombreCompleto</dd>
+
+            <dt class="col-sm-3">CI</dt>
+            <dd class="col-sm-9">@Model.Ci</dd>
+
+            <dt class="col-sm-3">Teléfono</dt>
+            <dd class="col-sm-9">@Model.Telefono</dd>
+
+            <dt class="col-sm-3">Correo</dt>
+            <dd class="col-sm-9">@Model.Email</dd>
+
+            <dt class="col-sm-3">Dirección</dt>
+            <dd class="col-sm-9">
+                @(string.IsNullOrWhiteSpace(Model.Direccion)
+                    ? "No especificada" : Model.Direccion)
+            </dd>
+
+            <dt class="col-sm-3">Fecha de nacimiento</dt>
+            <dd class="col-sm-9">
+                @(Model.FechaNacimiento?.ToString("dd/MM/yyyy")
+                    ?? "No especificada")
+            </dd>
+
+            <dt class="col-sm-3">Fecha de registro</dt>
+            <dd class="col-sm-9">
+                @Model.FechaRegistro.ToString("dd/MM/yyyy")
+            </dd>
+
+            <dt class="col-sm-3">Estado</dt>
+            <dd class="col-sm-9">
+                @(Model.Activo ? "Activo" : "Inactivo")
+            </dd>
+        </dl>
+
+        <a asp-action="Edit" asp-route-id="@Model.Id"
+           class="btn btn-primary">Editar</a>
+
+        <a asp-action="Index" class="btn btn-secondary">Volver</a>
+    </div>
+</div>
