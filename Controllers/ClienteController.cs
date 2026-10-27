@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace gimnasio.Controllers;
 
-public class ClientesController : Controller
+public class ClienteController : Controller
 {
     private readonly ClienteRepositorio _repo;
 
-    public ClientesController(ClienteRepositorio repo)
+    public ClienteController(ClienteRepositorio repo)
     {
         _repo = repo;
     }

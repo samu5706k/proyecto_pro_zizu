@@ -1,0 +1,14 @@
+[
+  {
+    "Id": 1,
+    "Nombre": "zizu",
+    "Apellido": "pana",
+    "Ci": "2348719",
+    "Telefono": "76349087",
+    "Email": "pepe@gmail.com",
+    "Direccion": "sopocachi",
+    "FechaNacimiento": "2006-04-22T00:00:00",
+    "FechaRegistro": "2026-10-26T00:00:00",
+    "Activo": true
+  }
+]
