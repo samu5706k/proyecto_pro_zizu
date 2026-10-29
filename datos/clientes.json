@@ -10,5 +10,17 @@
     "FechaNacimiento": "2006-04-22T00:00:00",
     "FechaRegistro": "2026-10-26T00:00:00",
     "Activo": true
+  },
+  {
+    "Id": 2,
+    "Nombre": "samu",
+    "Apellido": "GUtierrez",
+    "Ci": "1223376",
+    "Telefono": "76398782",
+    "Email": "samu@gmail.com",
+    "Direccion": "puebla",
+    "FechaNacimiento": "2004-09-11T00:00:00",
+    "FechaRegistro": "2026-09-12T00:00:00",
+    "Activo": true
   }
 ]

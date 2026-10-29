@@ -1,0 +1,14 @@
+[
+  {
+    "Id": 1,
+    "Nombre": "samu",
+    "Apellido": "guti",
+    "Ci": "1038375865",
+    "Telefono": "79505385",
+    "Email": "saihdug@gmail.com",
+    "Especialidad": "yoga",
+    "FechaContratacion": "2026-10-29T00:00:00",
+    "Salario": 2000,
+    "Activo": true
+  }
+]
