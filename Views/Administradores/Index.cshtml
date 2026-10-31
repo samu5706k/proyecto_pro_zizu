@@ -1,0 +1,121 @@
+
+@model IEnumerable<Administrador>
+
+@{
+    ViewData["Title"] = "Administradores";
+    string? buscar = ViewBag.Buscar as string;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <h2 class="mb-0">
+        <i class="bi bi-person-badge-fill"></i> Administradores
+    </h2>
+
+    <a class="btn btn-primary" asp-action="Create">
+        <i class="bi bi-plus-lg"></i> Registrar administrador
+    </a>
+</div>
+
+<div class="card tarjeta mb-4">
+    <div class="card-body">
+        <form method="get" asp-action="Index" class="row g-2">
+            <div class="col-md-9">
+                <input type="text" name="buscar" value="@buscar"
+                       class="form-control"
+                       placeholder="Buscar por nombre, CI, teléfono o correo..." />
+            </div>
+
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-dark flex-fill">
+                    <i class="bi bi-search"></i> Buscar
+                </button>
+
+                @if (!string.IsNullOrWhiteSpace(buscar))
+                {
+                    <a asp-action="Index" class="btn btn-outline-secondary">Limpiar</a>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card tarjeta">
+    <div class="card-body">
+
+        @if (TempData["Exito"] != null)
+        {
+            <div class="alert alert-success">@TempData["Exito"]</div>
+        }
+
+        @if (!Model.Any())
+        {
+            <p class="text-muted mb-0">
+                @(string.IsNullOrWhiteSpace(buscar)
+                    ? "No hay administradores registrados todavía."
+                    : "No se encontraron coincidencias.")
+            </p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>CI</th>
+                            <th>Cargo</th>
+                            <th>Nivel de acceso</th>
+                            <th>Estado</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var a in Model)
+                        {
+                            <tr>
+                                <td>@a.Id</td>
+                                <td>@a.NombreCompleto</td>
+                                <td>@a.Ci</td>
+                                <td>@a.Cargo</td>
+                                <td>@a.NivelAcceso</td>
+
+                                <td>
+                                    @if (a.Activo)
+                                    {
+                                        <span class="badge text-bg-success">Activo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge text-bg-secondary">Inactivo</span>
+                                    }
+                                </td>
+
+                                <td class="text-end text-nowrap">
+                                    <a class="btn btn-sm btn-outline-primary"
+                                       asp-action="Edit"
+                                       asp-route-id="@a.Id"
+                                       title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+
+                                    <a class="btn btn-sm btn-outline-danger"
+                                       asp-action="Delete"
+                                       asp-route-id="@a.Id"
+                                       title="Eliminar">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="text-muted small mt-3">
+                Total mostrado: @Model.Count()
+            </div>
+        }
+    </div>
+</div>

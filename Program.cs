@@ -12,6 +12,9 @@ builder.Services.AddSingleton<EntrenadorRepositorio>();
 // Registra el repositorio de Cliente
 builder.Services.AddSingleton<ClienteRepositorio>();
 
+// Registrar el repositorio de Administradores
+builder.Services.AddSingleton<AdministradorRepositorio>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

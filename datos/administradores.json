@@ -1,0 +1,14 @@
+[
+  {
+    "Id": 1,
+    "Nombre": "laura",
+    "Apellido": "chavez ",
+    "Ci": "1234567",
+    "Telefono": "76543210",
+    "Email": "laura123@gmail.com",
+    "Cargo": "Administrador",
+    "NivelAcceso": "Completo",
+    "Activo": true,
+    "NombreCompleto": "laura chavez "
+  }
+]
