@@ -1,0 +1,252 @@
+
+@model gimnasio.Models.EstadisticasViewModel
+
+@{
+    ViewData["Title"] = "Estadísticas";
+}
+
+<h2 class="mb-2">
+    <i class="bi bi-bar-chart-line-fill"></i>
+    Estadísticas del gimnasio
+</h2>
+
+<p class="text-muted mb-4">
+    Resumen general de los datos registrados en el gimnasio.
+</p>
+
+<!-- RESUMEN GENERAL -->
+<div class="row g-3 mb-4">
+
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <i class="bi bi-people fs-2 text-primary"></i>
+                <p class="text-muted mb-1">Total de clientes</p>
+                <h2>@Model.TotalClientes</h2>
+                <small>Activos: @Model.ClientesActivos</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <i class="bi bi-person-workspace fs-2 text-success"></i>
+                <p class="text-muted mb-1">Total de entrenadores</p>
+                <h2>@Model.TotalEntrenadores</h2>
+                <small>Activos: @Model.EntrenadoresActivos</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <i class="bi bi-person-badge fs-2 text-warning"></i>
+                <p class="text-muted mb-1">Total de administradores</p>
+                <h2>@Model.TotalAdministradores</h2>
+                <small>Activos: @Model.AdministradoresActivos</small>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ESTADÍSTICAS GENERALES -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+
+        <h5 class="mb-3">
+            <i class="bi bi-activity"></i>
+            Actividad general del gimnasio
+        </h5>
+
+        <div class="row text-center">
+
+            <div class="col-md-4 mb-3">
+                <h3>@Model.TotalPersonas</h3>
+                <span class="text-muted">Personas registradas</span>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <h3 class="text-success">@Model.TotalActivos</h3>
+                <span class="text-muted">Personas activas</span>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <h3 class="text-primary">
+                    @(Model.TotalPersonas > 0
+                        ? Math.Round(100.0 * Model.TotalActivos /
+                            Model.TotalPersonas, 1)
+                        : 0)%
+                </h3>
+                <span class="text-muted">Porcentaje de actividad</span>
+            </div>
+
+        </div>
+
+        @{
+            int porcentaje = Model.TotalPersonas > 0
+                ? (int)Math.Round(100.0 * Model.TotalActivos /
+                    Model.TotalPersonas)
+                : 0;
+        }
+
+        <div class="progress" style="height: 20px;">
+            <div class="progress-bar bg-success"
+                 role="progressbar"
+                 style="width: @(porcentaje)%">
+                @porcentaje%
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- CLIENTES -->
+<div class="row g-3 mb-4">
+
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5>
+                    <i class="bi bi-person-check"></i>
+                    Estado de los clientes
+                </h5>
+
+                <p class="mb-1">
+                    Clientes activos: @Model.ClientesActivos
+                </p>
+
+                <div class="progress mb-3">
+                    <div class="progress-bar bg-success"
+                         style="width: @(Model.TotalClientes > 0
+                            ? 100.0 * Model.ClientesActivos /
+                                Model.TotalClientes : 0)%">
+                    </div>
+                </div>
+
+                <p class="mb-1">
+                    Clientes inactivos: @Model.ClientesInactivos
+                </p>
+
+                <div class="progress">
+                    <div class="progress-bar bg-danger"
+                         style="width: @(Model.TotalClientes > 0
+                            ? 100.0 * Model.ClientesInactivos /
+                                Model.TotalClientes : 0)%">
+                    </div>
+                </div>
+
+                <hr />
+
+                <h4 class="text-primary">
+                    @Model.ClientesRegistradosMes
+                </h4>
+                <span class="text-muted">
+                    Registrados este mes
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ENTRENADORES -->
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5>
+                    <i class="bi bi-bar-chart"></i>
+                    Entrenadores por especialidad
+                </h5>
+
+                @if (Model.PorEspecialidad.Count == 0)
+                {
+                    <p class="text-muted">
+                        No hay entrenadores registrados.
+                    </p>
+                }
+                else
+                {
+                    @foreach (var item in Model.PorEspecialidad)
+                    {
+                        int porcentajeEspecialidad =
+                            Model.TotalEntrenadores > 0
+                            ? (int)Math.Round(
+                                100.0 * item.Cantidad /
+                                Model.TotalEntrenadores)
+                            : 0;
+
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>@item.Nombre</span>
+                                <strong>@item.Cantidad</strong>
+                            </div>
+
+                            <div class="progress">
+                                <div class="progress-bar bg-primary"
+                                     style="width: @(porcentajeEspecialidad)%">
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- PERSONAL ADMINISTRATIVO -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+
+        <h5 class="mb-3">
+            <i class="bi bi-person-gear"></i>
+            Estado del personal
+        </h5>
+
+        <div class="table-responsive">
+            <table class="table table-bordered text-center">
+                <thead class="table-light">
+                    <tr>
+                        <th>Tipo de personal</th>
+                        <th>Total</th>
+                        <th>Activos</th>
+                        <th>Inactivos</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>Entrenadores</td>
+                        <td>@Model.TotalEntrenadores</td>
+                        <td class="text-success">
+                            @Model.EntrenadoresActivos
+                        </td>
+                        <td class="text-danger">
+                            @Model.EntrenadoresInactivos
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Administradores</td>
+                        <td>@Model.TotalAdministradores</td>
+                        <td class="text-success">
+                            @Model.AdministradoresActivos
+                        </td>
+                        <td class="text-danger">
+                            @Model.AdministradoresInactivos
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<div class="text-muted small mb-3">
+    <i class="bi bi-info-circle"></i>
+    Las estadísticas se actualizan automáticamente
+    al consultar los registros del gimnasio.
+</div>
