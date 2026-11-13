@@ -1,8 +1,61 @@
-REQUISITOS 
-.net version 9.0
-vs code 
-maria db
-pasos para hacer correr el proyecto 
-clonar el repositorio 
-git clone
- https://github.com/samu5706k/proyecto_pro_zizu.git
+Sistema de Gestión de Gimnasio
+
+Requisitos
+
+Para ejecutar el proyecto necesitas tener instalado:
+
+- ".NET 9 SDK" (https://dotnet.microsoft.com/download/dotnet/9.0)
+- "Visual Studio Code" (https://code.visualstudio.com/)
+- "XAMPP" (https://www.apachefriends.org/) para utilizar MySQL.
+
+Instalación y ejecución
+
+1. Descargar el proyecto
+
+Clonar el repositorio desde GitHub:
+
+git clone https://github.com/samu5706k/proyecto_pro_zizu.git
+
+Abrir la carpeta del proyecto en Visual Studio Code.
+
+2. Iniciar MySQL
+
+- Abrir XAMPP.
+- Iniciar el servicio MySQL.
+- Verificar que esté funcionando en el puerto "3306".
+
+3. Crear la base de datos
+
+- Abrir phpMyAdmin.
+- Importar el archivo "base.sql" incluido en el proyecto.
+- Verificar que se haya creado la base de datos "gimnasio_db".
+
+4. Configurar la conexión
+
+Abrir una terminal en la carpeta del proyecto y ejecutar:
+
+dotnet user-secrets init
+
+Después, configurar la conexión a MySQL:
+
+dotnet user-secrets set "ConnectionStrings:Gimnasio" "Server=127.0.0.1;Port=3306;Database=gimnasio_db;User ID=root;Password=;SslMode=None;"
+
+Esta configuración corresponde a XAMPP con el usuario root sin contraseña.
+
+5. Instalar dependencias
+
+dotnet restore
+
+6. Ejecutar el proyecto
+
+dotnet run
+
+Abrir en el navegador la dirección local que aparece en la terminal, por ejemplo:
+
+"https://localhost:7000"
+
+Importante
+
+Cada computadora debe tener instalado .NET 9 y MySQL, además de configurar su propia conexión a la base de datos.
+
+Si se desea compartir la misma información entre varias computadoras, se necesita utilizar una base de datos alojada en un servidor compartido.
