@@ -1,4 +1,4 @@
-Sistema de Gestión de Gimnasio
+# Sistema de Gestión de Gimnasio
 
 Requisitos
 
@@ -8,7 +8,7 @@ Para ejecutar el proyecto necesitas tener instalado:
 - "Visual Studio Code" (https://code.visualstudio.com/)
 - "XAMPP" (https://www.apachefriends.org/) para utilizar MySQL.
 
-Instalación y ejecución
+ # Instalación y ejecución
 
 1. Descargar el proyecto
 
