@@ -1,6 +1,6 @@
-# Sistema de Gestión de Gimnasio (H1)-># proyecto_pro_zizu
+# Sistema de Gestión de Gimnasio 
 
-Requisitos
+ . Requisitos
 
 Para ejecutar el proyecto necesitas tener instalado:
 
@@ -10,7 +10,7 @@ Para ejecutar el proyecto necesitas tener instalado:
 
  # Instalación y ejecución
 
-1. Descargar el proyecto
+## 1. Descargar el proyecto
 
 Clonar el repositorio desde GitHub:
 
@@ -18,19 +18,19 @@ git clone https://github.com/samu5706k/proyecto_pro_zizu.git
 
 Abrir la carpeta del proyecto en Visual Studio Code.
 
-2. Iniciar MySQL
+## 2. Iniciar MySQL
 
 - Abrir XAMPP.
 - Iniciar el servicio MySQL.
 - Verificar que esté funcionando en el puerto "3306".
 
-3. Crear la base de datos
+## 3. Crear la base de datos
 
 - Abrir phpMyAdmin.
 - Importar el archivo "base.sql" incluido en el proyecto.
 - Verificar que se haya creado la base de datos "gimnasio_db".
 
-4. Configurar la conexión
+## 4. Configurar la conexión
 
 Abrir una terminal en la carpeta del proyecto y ejecutar:
 
@@ -42,11 +42,11 @@ dotnet user-secrets set "ConnectionStrings:Gimnasio" "Server=127.0.0.1;Port=3306
 
 Esta configuración corresponde a XAMPP con el usuario root sin contraseña.
 
-5. Instalar dependencias
+## 5. Instalar dependencias
 
 dotnet restore
 
-6. Ejecutar el proyecto
+## 6. Ejecutar el proyecto
 
 dotnet run
 
