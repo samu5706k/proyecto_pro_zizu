@@ -1,140 +1,119 @@
-using System.Text.Json;
 using gimnasio.Models;
+using MySqlConnector;
 
 namespace gimnasio.Services;
 
 public class ClienteRepositorio
 {
-    private readonly string _rutaArchivo;
-    private readonly object _candado = new();
-    private List<Cliente> _clientes = new();
-
-    private static readonly JsonSerializerOptions Opciones = new()
+    private readonly string _conexion;
+    public ClienteRepositorio(IConfiguration configuration)
     {
-        WriteIndented = true
-    };
-
-    public ClienteRepositorio(IWebHostEnvironment entorno)
-    {
-        string carpeta = Path.Combine(entorno.ContentRootPath, "datos");
-        Directory.CreateDirectory(carpeta);
-
-        _rutaArchivo = Path.Combine(carpeta, "clientes.json");
-        Cargar();
+        _conexion = configuration.GetConnectionString("Gimnasio") ?? "";
+        if (string.IsNullOrWhiteSpace(_conexion))
+            throw new InvalidOperationException(
+                "Falta configurar ConnectionStrings:Gimnasio. Consulta README.md para configurar User Secrets.");
     }
 
-    public Cliente Agregar(Cliente cliente)
+    private MySqlConnection Abrir()
     {
-        lock (_candado)
-        {
-            cliente.Id = _clientes.Count == 0
-                ? 1
-                : _clientes.Max(c => c.Id) + 1;
+        var cn = new MySqlConnection(_conexion);
+        cn.Open();
+        return cn;
+    }
 
-            _clientes.Add(cliente.Clonar());
-            Guardar();
+    private static Cliente Mapear(MySqlDataReader r) => new()
+    {
+        Id = r.GetInt32("Id"), Nombre = r.GetString("Nombre"),
+        Apellido = r.GetString("Apellido"), Ci = r.GetString("Ci"),
+        Telefono = r.GetString("Telefono"), Email = r.GetString("Email"),
+        Direccion = r.GetString("Direccion"),
+        FechaNacimiento = r.IsDBNull(r.GetOrdinal("FechaNacimiento")) ? null : r.GetDateTime("FechaNacimiento"),
+        FechaRegistro = r.GetDateTime("FechaRegistro"), Activo = r.GetBoolean("Activo")
+    };
 
-            return cliente;
-        }
+    public Cliente Agregar(Cliente c)
+    {
+        using var cn = Abrir();
+        using var cmd = new MySqlCommand(@"INSERT INTO clientes
+            (Nombre,Apellido,Ci,Telefono,Email,Direccion,FechaNacimiento,FechaRegistro,Activo)
+            VALUES (@Nombre,@Apellido,@Ci,@Telefono,@Email,@Direccion,@Nacimiento,@Registro,@Activo);
+            SELECT LAST_INSERT_ID();", cn);
+        Parametros(cmd, c);
+        c.Id = Convert.ToInt32(cmd.ExecuteScalar());
+        return c;
     }
 
     public IReadOnlyList<Cliente> ObtenerTodos()
     {
-        lock (_candado)
-        {
-            return _clientes
-                .OrderBy(c => c.Id)
-                .Select(c => c.Clonar())
-                .ToList();
-        }
+        using var cn = Abrir();
+        using var cmd = new MySqlCommand("SELECT * FROM clientes ORDER BY Id", cn);
+        using var r = cmd.ExecuteReader();
+        var lista = new List<Cliente>();
+        while (r.Read()) lista.Add(Mapear(r));
+        return lista;
     }
 
     public Cliente? ObtenerPorId(int id)
     {
-        lock (_candado)
-        {
-            return _clientes.FirstOrDefault(c => c.Id == id)?.Clonar();
-        }
+        using var cn = Abrir();
+        using var cmd = new MySqlCommand("SELECT * FROM clientes WHERE Id=@Id", cn);
+        cmd.Parameters.AddWithValue("@Id", id);
+        using var r = cmd.ExecuteReader();
+        return r.Read() ? Mapear(r) : null;
     }
 
     public bool ExisteCi(string ci, int? excluirId = null)
     {
-        lock (_candado)
-        {
-            return _clientes.Any(c =>
-                c.Ci.Equals(ci.Trim(), StringComparison.OrdinalIgnoreCase)
-                && c.Id != excluirId);
-        }
+        using var cn = Abrir();
+        using var cmd = new MySqlCommand(
+            "SELECT COUNT(*) FROM clientes WHERE Ci=@Ci AND (@Excluir IS NULL OR Id<>@Excluir)", cn);
+        cmd.Parameters.AddWithValue("@Ci", ci.Trim());
+        cmd.Parameters.AddWithValue("@Excluir", (object?)excluirId ?? DBNull.Value);
+        return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
     }
 
     public IReadOnlyList<Cliente> Buscar(string texto)
     {
-        texto = texto.Trim();
-
-        lock (_candado)
-        {
-            return _clientes
-                .Where(c =>
-                    c.NombreCompleto.Contains(texto, StringComparison.OrdinalIgnoreCase)
-                    || c.Ci.Contains(texto, StringComparison.OrdinalIgnoreCase)
-                    || c.Telefono.Contains(texto, StringComparison.OrdinalIgnoreCase)
-                    || c.Email.Contains(texto, StringComparison.OrdinalIgnoreCase))
-                .OrderBy(c => c.Id)
-                .Select(c => c.Clonar())
-                .ToList();
-        }
+        using var cn = Abrir();
+        using var cmd = new MySqlCommand(@"SELECT * FROM clientes
+            WHERE Nombre LIKE @T OR Apellido LIKE @T OR Ci LIKE @T OR Telefono LIKE @T OR Email LIKE @T
+            ORDER BY Id", cn);
+        cmd.Parameters.AddWithValue("@T", $"%{texto.Trim()}%");
+        using var r = cmd.ExecuteReader();
+        var lista = new List<Cliente>();
+        while (r.Read()) lista.Add(Mapear(r));
+        return lista;
     }
 
-    public bool Actualizar(Cliente modificado)
+    public bool Actualizar(Cliente c)
     {
-        lock (_candado)
-        {
-            int indice = _clientes.FindIndex(c => c.Id == modificado.Id);
-
-            if (indice < 0)
-                return false;
-
-            _clientes[indice] = modificado.Clonar();
-            Guardar();
-
-            return true;
-        }
+        using var cn = Abrir();
+        using var cmd = new MySqlCommand(@"UPDATE clientes SET Nombre=@Nombre,Apellido=@Apellido,
+            Ci=@Ci,Telefono=@Telefono,Email=@Email,Direccion=@Direccion,
+            FechaNacimiento=@Nacimiento,FechaRegistro=@Registro,Activo=@Activo WHERE Id=@Id", cn);
+        Parametros(cmd, c);
+        cmd.Parameters.AddWithValue("@Id", c.Id);
+        return cmd.ExecuteNonQuery() > 0;
     }
 
     public bool Eliminar(int id)
     {
-        lock (_candado)
-        {
-            int eliminados = _clientes.RemoveAll(c => c.Id == id);
-
-            if (eliminados == 0)
-                return false;
-
-            Guardar();
-            return true;
-        }
+        using var cn = Abrir();
+        using var cmd = new MySqlCommand("DELETE FROM clientes WHERE Id=@Id", cn);
+        cmd.Parameters.AddWithValue("@Id", id);
+        return cmd.ExecuteNonQuery() > 0;
     }
 
-    private void Cargar()
+    private static void Parametros(MySqlCommand cmd, Cliente c)
     {
-        if (!File.Exists(_rutaArchivo))
-            return;
-
-        try
-        {
-            string json = File.ReadAllText(_rutaArchivo);
-            _clientes = JsonSerializer.Deserialize<List<Cliente>>(json) ?? new();
-        }
-        catch (JsonException)
-        {
-            _clientes = new();
-        }
-    }
-
-    private void Guardar()
-    {
-        File.WriteAllText(
-            _rutaArchivo,
-            JsonSerializer.Serialize(_clientes, Opciones));
+        cmd.Parameters.AddWithValue("@Nombre", c.Nombre);
+        cmd.Parameters.AddWithValue("@Apellido", c.Apellido);
+        cmd.Parameters.AddWithValue("@Ci", c.Ci);
+        cmd.Parameters.AddWithValue("@Telefono", c.Telefono);
+        cmd.Parameters.AddWithValue("@Email", c.Email);
+        cmd.Parameters.AddWithValue("@Direccion", c.Direccion ?? "");
+        cmd.Parameters.AddWithValue("@Nacimiento", (object?)c.FechaNacimiento?.Date ?? DBNull.Value);
+        cmd.Parameters.AddWithValue("@Registro", c.FechaRegistro.Date);
+        cmd.Parameters.AddWithValue("@Activo", c.Activo);
     }
 }

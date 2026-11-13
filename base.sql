@@ -12,7 +12,7 @@ CREATE TABLE clientes (
     Telefono        VARCHAR(15)  NOT NULL,
     Email           VARCHAR(150) NOT NULL,
     Direccion       VARCHAR(200) NOT NULL,
-    FechaNacimiento DATE         NOT NULL,
+    FechaNacimiento DATE         NULL,
     FechaRegistro   DATE         NOT NULL DEFAULT (CURRENT_DATE),
     Activo          TINYINT(1)   NOT NULL DEFAULT 1,
     PRIMARY KEY (Id),
@@ -61,23 +61,5 @@ CREATE TABLE administradores (
     CONSTRAINT chk_admin_telefono CHECK (CHAR_LENGTH(Telefono) BETWEEN 7 AND 15)
 ) ENGINE=InnoDB;
 
-INSERT INTO clientes
-    (Id, Nombre, Apellido, Ci, Telefono, Email, Direccion, FechaNacimiento, FechaRegistro, Activo)
-VALUES
-    (1, 'zizu', 'pana', '2348719', '76349087', 'pepe@gmail.com', 'sopocachi', '2006-04-22', '2026-10-26', 1),
-    (2, 'samu', 'Gutierrez', '1223376', '76398782', 'samu@gmail.com', 'puebla', '2004-09-11', '2026-09-12', 1);
 
-INSERT INTO entrenadores
-    (Id, Nombre, Apellido, Ci, Telefono, Email, Especialidad, FechaContratacion, Salario, Activo)
-VALUES
-    (1, 'samu', 'guti', '1038375865', '79505385', 'saihdug@gmail.com', 'yoga', '2026-10-29', 2000.00, 1);
-
-INSERT INTO administradores
-    (Id, Nombre, Apellido, Ci, Telefono, Email, Cargo, NivelAcceso, Activo)
-VALUES
-    (1, 'laura', 'chavez', '1234567', '76543210', 'laura123@gmail.com', 'Administrador', 'Completo', 1);
-
--- Para que el próximo AUTO_INCREMENT continúe después de los datos cargados
-ALTER TABLE clientes        AUTO_INCREMENT = 3;
-ALTER TABLE entrenadores    AUTO_INCREMENT = 2;
-ALTER TABLE administradores AUTO_INCREMENT = 2;
+-- Las tablas se crean vacías. Registra los datos desde la aplicación.

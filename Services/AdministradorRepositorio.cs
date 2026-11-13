@@ -1,143 +1,116 @@
-
-using System.Text.Json;
 using gimnasio.Models;
+using MySqlConnector;
 
 namespace gimnasio.Services;
 
 public class AdministradorRepositorio
 {
-    private readonly string _rutaArchivo;
-    private readonly object _candado = new();
-    private List<Administrador> _administradores = new();
-
-    private static readonly JsonSerializerOptions Opciones = new()
+    private readonly string _conexion;
+    public AdministradorRepositorio(IConfiguration configuration)
     {
-        WriteIndented = true
-    };
-
-    public AdministradorRepositorio(IWebHostEnvironment entorno)
-    {
-        string carpeta = Path.Combine(entorno.ContentRootPath, "datos");
-        Directory.CreateDirectory(carpeta);
-
-        _rutaArchivo = Path.Combine(carpeta, "administradores.json");
-        Cargar();
+        _conexion = configuration.GetConnectionString("Gimnasio") ?? "";
+        if (string.IsNullOrWhiteSpace(_conexion))
+            throw new InvalidOperationException(
+                "Falta configurar ConnectionStrings:Gimnasio. Consulta README.md para configurar User Secrets.");
     }
 
-    public Administrador Agregar(Administrador administrador)
+    private MySqlConnection Abrir()
     {
-        lock (_candado)
-        {
-            administrador.Id = _administradores.Count == 0
-                ? 1
-                : _administradores.Max(a => a.Id) + 1;
+        var cn = new MySqlConnection(_conexion);
+        cn.Open();
+        return cn;
+    }
 
-            _administradores.Add(administrador.Clonar());
-            Guardar();
+    private static Administrador Mapear(MySqlDataReader r) => new()
+    {
+        Id = r.GetInt32("Id"), Nombre = r.GetString("Nombre"),
+        Apellido = r.GetString("Apellido"), Ci = r.GetString("Ci"),
+        Telefono = r.GetString("Telefono"), Email = r.GetString("Email"),
+        Cargo = r.GetString("Cargo"), NivelAcceso = r.GetString("NivelAcceso"),
+        Activo = r.GetBoolean("Activo")
+    };
 
-            return administrador;
-        }
+    public Administrador Agregar(Administrador a)
+    {
+        using var cn = Abrir();
+        using var cmd = new MySqlCommand(@"INSERT INTO administradores
+            (Nombre,Apellido,Ci,Telefono,Email,Cargo,NivelAcceso,Activo)
+            VALUES (@Nombre,@Apellido,@Ci,@Telefono,@Email,@Cargo,@Nivel,@Activo);
+            SELECT LAST_INSERT_ID();", cn);
+        Parametros(cmd, a);
+        a.Id = Convert.ToInt32(cmd.ExecuteScalar());
+        return a;
     }
 
     public IReadOnlyList<Administrador> ObtenerTodos()
     {
-        lock (_candado)
-        {
-            return _administradores
-                .OrderBy(a => a.Id)
-                .Select(a => a.Clonar())
-                .ToList();
-        }
+        using var cn = Abrir();
+        using var cmd = new MySqlCommand("SELECT * FROM administradores ORDER BY Id", cn);
+        using var r = cmd.ExecuteReader();
+        var lista = new List<Administrador>();
+        while (r.Read()) lista.Add(Mapear(r));
+        return lista;
     }
 
     public Administrador? ObtenerPorId(int id)
     {
-        lock (_candado)
-        {
-            return _administradores
-                .FirstOrDefault(a => a.Id == id)?.Clonar();
-        }
+        using var cn = Abrir();
+        using var cmd = new MySqlCommand("SELECT * FROM administradores WHERE Id=@Id", cn);
+        cmd.Parameters.AddWithValue("@Id", id);
+        using var r = cmd.ExecuteReader();
+        return r.Read() ? Mapear(r) : null;
     }
 
     public bool ExisteCi(string ci, int? excluirId = null)
     {
-        lock (_candado)
-        {
-            return _administradores.Any(a =>
-                a.Ci.Equals(ci.Trim(), StringComparison.OrdinalIgnoreCase)
-                && a.Id != excluirId);
-        }
+        using var cn = Abrir();
+        using var cmd = new MySqlCommand(
+            "SELECT COUNT(*) FROM administradores WHERE Ci=@Ci AND (@Excluir IS NULL OR Id<>@Excluir)", cn);
+        cmd.Parameters.AddWithValue("@Ci", ci.Trim());
+        cmd.Parameters.AddWithValue("@Excluir", (object?)excluirId ?? DBNull.Value);
+        return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
     }
 
     public IReadOnlyList<Administrador> Buscar(string texto)
     {
-        texto = texto.Trim();
-
-        lock (_candado)
-        {
-            return _administradores
-                .Where(a =>
-                    a.NombreCompleto.Contains(texto, StringComparison.OrdinalIgnoreCase)
-                    || a.Ci.Contains(texto, StringComparison.OrdinalIgnoreCase)
-                    || a.Telefono.Contains(texto, StringComparison.OrdinalIgnoreCase)
-                    || a.Email.Contains(texto, StringComparison.OrdinalIgnoreCase))
-                .OrderBy(a => a.Id)
-                .Select(a => a.Clonar())
-                .ToList();
-        }
+        using var cn = Abrir();
+        using var cmd = new MySqlCommand(@"SELECT * FROM administradores
+            WHERE Nombre LIKE @T OR Apellido LIKE @T OR Ci LIKE @T OR Telefono LIKE @T OR Email LIKE @T
+            ORDER BY Id", cn);
+        cmd.Parameters.AddWithValue("@T", $"%{texto.Trim()}%");
+        using var r = cmd.ExecuteReader();
+        var lista = new List<Administrador>();
+        while (r.Read()) lista.Add(Mapear(r));
+        return lista;
     }
 
-    public bool Actualizar(Administrador modificado)
+    public bool Actualizar(Administrador a)
     {
-        lock (_candado)
-        {
-            int indice = _administradores.FindIndex(a => a.Id == modificado.Id);
-
-            if (indice < 0)
-                return false;
-
-            _administradores[indice] = modificado.Clonar();
-            Guardar();
-
-            return true;
-        }
+        using var cn = Abrir();
+        using var cmd = new MySqlCommand(@"UPDATE administradores SET Nombre=@Nombre,Apellido=@Apellido,
+            Ci=@Ci,Telefono=@Telefono,Email=@Email,Cargo=@Cargo,NivelAcceso=@Nivel,Activo=@Activo WHERE Id=@Id", cn);
+        Parametros(cmd, a);
+        cmd.Parameters.AddWithValue("@Id", a.Id);
+        return cmd.ExecuteNonQuery() > 0;
     }
 
     public bool Eliminar(int id)
     {
-        lock (_candado)
-        {
-            int eliminados = _administradores.RemoveAll(a => a.Id == id);
-
-            if (eliminados == 0)
-                return false;
-
-            Guardar();
-            return true;
-        }
+        using var cn = Abrir();
+        using var cmd = new MySqlCommand("DELETE FROM administradores WHERE Id=@Id", cn);
+        cmd.Parameters.AddWithValue("@Id", id);
+        return cmd.ExecuteNonQuery() > 0;
     }
 
-    private void Cargar()
+    private static void Parametros(MySqlCommand cmd, Administrador a)
     {
-        if (!File.Exists(_rutaArchivo))
-            return;
-
-        try
-        {
-            string json = File.ReadAllText(_rutaArchivo);
-            _administradores =
-                JsonSerializer.Deserialize<List<Administrador>>(json) ?? new();
-        }
-        catch (JsonException)
-        {
-            _administradores = new();
-        }
-    }
-
-    private void Guardar()
-    {
-        File.WriteAllText(
-            _rutaArchivo,
-            JsonSerializer.Serialize(_administradores, Opciones));
+        cmd.Parameters.AddWithValue("@Nombre", a.Nombre);
+        cmd.Parameters.AddWithValue("@Apellido", a.Apellido);
+        cmd.Parameters.AddWithValue("@Ci", a.Ci);
+        cmd.Parameters.AddWithValue("@Telefono", a.Telefono);
+        cmd.Parameters.AddWithValue("@Email", a.Email);
+        cmd.Parameters.AddWithValue("@Cargo", a.Cargo);
+        cmd.Parameters.AddWithValue("@Nivel", a.NivelAcceso);
+        cmd.Parameters.AddWithValue("@Activo", a.Activo);
     }
 }

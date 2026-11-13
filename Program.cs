@@ -7,13 +7,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 // Registrar el repositorio de entrenadores.
-builder.Services.AddSingleton<EntrenadorRepositorio>();
+builder.Services.AddScoped<EntrenadorRepositorio>();
 
 // Registra el repositorio de Cliente
-builder.Services.AddSingleton<ClienteRepositorio>();
+builder.Services.AddScoped<ClienteRepositorio>();
 
 // Registrar el repositorio de Administradores
-builder.Services.AddSingleton<AdministradorRepositorio>();
+builder.Services.AddScoped<AdministradorRepositorio>();
 
 var app = builder.Build();
 

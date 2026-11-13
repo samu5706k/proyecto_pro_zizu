@@ -1,115 +1,119 @@
-using System.Text.Json;
 using gimnasio.Models;
+using MySqlConnector;
 
 namespace gimnasio.Services;
 
-/// <summary>
-/// Guarda los entrenadores en un archivo JSON local (carpeta "datos").
-/// Es seguro para varias peticiones simultáneas gracias a un lock.
-/// </summary>
 public class EntrenadorRepositorio
 {
-    private readonly string _rutaArchivo;
-    private readonly object _candado = new();
-    private List<Entrenador> _entrenadores = new();
-
-    private static readonly JsonSerializerOptions Opciones = new() { WriteIndented = true };
-
-    public EntrenadorRepositorio(IWebHostEnvironment entorno)
+    private readonly string _conexion;
+    public EntrenadorRepositorio(IConfiguration configuration)
     {
-        string carpeta = Path.Combine(entorno.ContentRootPath, "datos");
-        Directory.CreateDirectory(carpeta);
-        _rutaArchivo = Path.Combine(carpeta, "entrenadores.json");
-        Cargar();
+        _conexion = configuration.GetConnectionString("Gimnasio") ?? "";
+        if (string.IsNullOrWhiteSpace(_conexion))
+            throw new InvalidOperationException(
+                "Falta configurar ConnectionStrings:Gimnasio. Consulta README.md para configurar User Secrets.");
     }
 
-    // ---------- CREATE ----------
-    public Entrenador Agregar(Entrenador entrenador)
+    private MySqlConnection Abrir()
     {
-        lock (_candado)
-        {
-            entrenador.Id = _entrenadores.Count == 0 ? 1 : _entrenadores.Max(e => e.Id) + 1;
-            _entrenadores.Add(entrenador.Clonar());
-            Guardar();
-            return entrenador;
-        }
+        var cn = new MySqlConnection(_conexion);
+        cn.Open();
+        return cn;
     }
 
-    // ---------- READ ----------
+    private static Entrenador Mapear(MySqlDataReader r) => new()
+    {
+        Id = r.GetInt32("Id"), Nombre = r.GetString("Nombre"),
+        Apellido = r.GetString("Apellido"), Ci = r.GetString("Ci"),
+        Telefono = r.GetString("Telefono"), Email = r.GetString("Email"),
+        Especialidad = r.GetString("Especialidad"),
+        FechaContratacion = r.GetDateTime("FechaContratacion"),
+        Salario = r.GetDecimal("Salario"), Activo = r.GetBoolean("Activo")
+    };
+
+    public Entrenador Agregar(Entrenador e)
+    {
+        using var cn = Abrir();
+        using var cmd = new MySqlCommand(@"INSERT INTO entrenadores
+            (Nombre,Apellido,Ci,Telefono,Email,Especialidad,FechaContratacion,Salario,Activo)
+            VALUES (@Nombre,@Apellido,@Ci,@Telefono,@Email,@Especialidad,@Fecha,@Salario,@Activo);
+            SELECT LAST_INSERT_ID();", cn);
+        Parametros(cmd, e);
+        e.Id = Convert.ToInt32(cmd.ExecuteScalar());
+        return e;
+    }
+
     public IReadOnlyList<Entrenador> ObtenerTodos()
     {
-        lock (_candado)
-            return _entrenadores.OrderBy(e => e.Id).Select(e => e.Clonar()).ToList();
+        using var cn = Abrir();
+        using var cmd = new MySqlCommand("SELECT * FROM entrenadores ORDER BY Id", cn);
+        using var r = cmd.ExecuteReader();
+        var lista = new List<Entrenador>();
+        while (r.Read()) lista.Add(Mapear(r));
+        return lista;
     }
 
     public Entrenador? ObtenerPorId(int id)
     {
-        lock (_candado)
-            return _entrenadores.FirstOrDefault(e => e.Id == id)?.Clonar();
+        using var cn = Abrir();
+        using var cmd = new MySqlCommand("SELECT * FROM entrenadores WHERE Id=@Id", cn);
+        cmd.Parameters.AddWithValue("@Id", id);
+        using var r = cmd.ExecuteReader();
+        return r.Read() ? Mapear(r) : null;
     }
 
     public bool ExisteCi(string ci, int? excluirId = null)
     {
-        lock (_candado)
-            return _entrenadores.Any(e =>
-                e.Ci.Equals(ci.Trim(), StringComparison.OrdinalIgnoreCase) && e.Id != excluirId);
+        using var cn = Abrir();
+        using var cmd = new MySqlCommand(
+            "SELECT COUNT(*) FROM entrenadores WHERE Ci=@Ci AND (@Excluir IS NULL OR Id<>@Excluir)", cn);
+        cmd.Parameters.AddWithValue("@Ci", ci.Trim());
+        cmd.Parameters.AddWithValue("@Excluir", (object?)excluirId ?? DBNull.Value);
+        return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
     }
 
     public IReadOnlyList<Entrenador> Buscar(string texto)
     {
-        texto = texto.Trim();
-        lock (_candado)
-            return _entrenadores
-                .Where(e => e.NombreCompleto.Contains(texto, StringComparison.OrdinalIgnoreCase)
-                         || e.Ci.Contains(texto, StringComparison.OrdinalIgnoreCase)
-                         || e.Especialidad.Contains(texto, StringComparison.OrdinalIgnoreCase))
-                .OrderBy(e => e.Id)
-                .Select(e => e.Clonar())
-                .ToList();
+        using var cn = Abrir();
+        using var cmd = new MySqlCommand(@"SELECT * FROM entrenadores
+            WHERE Nombre LIKE @T OR Apellido LIKE @T OR Ci LIKE @T OR Especialidad LIKE @T
+            ORDER BY Id", cn);
+        cmd.Parameters.AddWithValue("@T", $"%{texto.Trim()}%");
+        using var r = cmd.ExecuteReader();
+        var lista = new List<Entrenador>();
+        while (r.Read()) lista.Add(Mapear(r));
+        return lista;
     }
 
-    // ---------- UPDATE ----------
-    public bool Actualizar(Entrenador modificado)
+    public bool Actualizar(Entrenador e)
     {
-        lock (_candado)
-        {
-            int indice = _entrenadores.FindIndex(e => e.Id == modificado.Id);
-            if (indice < 0) return false;
-            _entrenadores[indice] = modificado.Clonar();
-            Guardar();
-            return true;
-        }
+        using var cn = Abrir();
+        using var cmd = new MySqlCommand(@"UPDATE entrenadores SET Nombre=@Nombre,Apellido=@Apellido,
+            Ci=@Ci,Telefono=@Telefono,Email=@Email,Especialidad=@Especialidad,
+            FechaContratacion=@Fecha,Salario=@Salario,Activo=@Activo WHERE Id=@Id", cn);
+        Parametros(cmd, e);
+        cmd.Parameters.AddWithValue("@Id", e.Id);
+        return cmd.ExecuteNonQuery() > 0;
     }
 
-    // ---------- DELETE ----------
     public bool Eliminar(int id)
     {
-        lock (_candado)
-        {
-            int eliminados = _entrenadores.RemoveAll(e => e.Id == id);
-            if (eliminados == 0) return false;
-            Guardar();
-            return true;
-        }
+        using var cn = Abrir();
+        using var cmd = new MySqlCommand("DELETE FROM entrenadores WHERE Id=@Id", cn);
+        cmd.Parameters.AddWithValue("@Id", id);
+        return cmd.ExecuteNonQuery() > 0;
     }
 
-    // ---------- Persistencia ----------
-    private void Cargar()
+    private static void Parametros(MySqlCommand cmd, Entrenador e)
     {
-        if (!File.Exists(_rutaArchivo)) return;
-        try
-        {
-            string json = File.ReadAllText(_rutaArchivo);
-            _entrenadores = JsonSerializer.Deserialize<List<Entrenador>>(json) ?? new();
-        }
-        catch (JsonException)
-        {
-            _entrenadores = new();
-        }
-    }
-
-    private void Guardar()
-    {
-        File.WriteAllText(_rutaArchivo, JsonSerializer.Serialize(_entrenadores, Opciones));
+        cmd.Parameters.AddWithValue("@Nombre", e.Nombre);
+        cmd.Parameters.AddWithValue("@Apellido", e.Apellido);
+        cmd.Parameters.AddWithValue("@Ci", e.Ci);
+        cmd.Parameters.AddWithValue("@Telefono", e.Telefono);
+        cmd.Parameters.AddWithValue("@Email", e.Email);
+        cmd.Parameters.AddWithValue("@Especialidad", e.Especialidad);
+        cmd.Parameters.AddWithValue("@Fecha", e.FechaContratacion.Date);
+        cmd.Parameters.AddWithValue("@Salario", e.Salario);
+        cmd.Parameters.AddWithValue("@Activo", e.Activo);
     }
 }
