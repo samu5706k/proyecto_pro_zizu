@@ -1,0 +1,67 @@
+
+@model gimnasio.Models.Membresia
+
+@{
+    ViewData["Title"] = "Detalle de membresía";
+}
+
+<h2 class="mb-3">Detalle de membresía</h2>
+
+<div class="card">
+    <div class="card-body">
+
+        <dl class="row">
+            <dt class="col-sm-4">Socio</dt>
+            <dd class="col-sm-8">@Model.ClienteNombre</dd>
+
+            <dt class="col-sm-4">Plan</dt>
+            <dd class="col-sm-8">@Model.Plan</dd>
+
+            <dt class="col-sm-4">Inicio</dt>
+            <dd class="col-sm-8">
+                @Model.FechaInicio.ToString("dd/MM/yyyy")
+            </dd>
+
+            <dt class="col-sm-4">Vencimiento</dt>
+            <dd class="col-sm-8">
+                @Model.FechaVencimiento.ToString("dd/MM/yyyy")
+            </dd>
+
+            <dt class="col-sm-4">Estado</dt>
+            <dd class="col-sm-8">@Model.Estado</dd>
+
+            <dt class="col-sm-4">Precio</dt>
+            <dd class="col-sm-8">
+                Bs @Model.Precio.ToString("N2")
+            </dd>
+
+            <dt class="col-sm-4">Total pagado</dt>
+            <dd class="col-sm-8">
+                Bs @Model.TotalPagado.ToString("N2")
+            </dd>
+
+            <dt class="col-sm-4">Saldo pendiente</dt>
+            <dd class="col-sm-8">
+                Bs @Model.SaldoPendiente.ToString("N2")
+            </dd>
+        </dl>
+
+        <a asp-controller="Pagos"
+           asp-action="Index"
+           asp-route-membresiaId="@Model.Id"
+           class="btn btn-success">
+            Ver pagos de esta membresía
+        </a>
+
+        <a asp-action="Edit"
+           asp-route-id="@Model.Id"
+           class="btn btn-primary">
+            Editar
+        </a>
+
+        <a asp-action="Index"
+           class="btn btn-secondary">
+            Volver
+        </a>
+    </div>
+</div>

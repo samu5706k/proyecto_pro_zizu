@@ -1,0 +1,52 @@
+
+@model gimnasio.Models.Membresia
+
+@{
+    ViewData["Title"] = "Eliminar membresía";
+}
+
+<h2 class="text-danger">Eliminar membresía</h2>
+
+<div class="card">
+    <div class="card-body">
+
+        <p>¿Deseas eliminar esta membresía?</p>
+
+        <p><strong>Socio:</strong> @Model.ClienteNombre</p>
+        <p><strong>Plan:</strong> @Model.Plan</p>
+        <p>
+            <strong>Precio:</strong>
+            Bs @Model.Precio.ToString("N2")
+        </p>
+
+        @if (Model.TotalPagado > 0)
+        {
+            <div class="alert alert-warning">
+                Esta membresía tiene pagos registrados.
+                No se puede eliminar mientras existan.
+                Puedes editarla y marcarla como inactiva.
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning">
+                Esta acción eliminará la membresía.
+            </div>
+        }
+
+        <form asp-action="Delete"
+              asp-route-id="@Model.Id"
+              method="post">
+
+            <button type="submit"
+                    class="btn btn-danger">
+                Confirmar eliminación
+            </button>
+
+            <a asp-action="Index"
+               class="btn btn-secondary">
+                Cancelar
+            </a>
+        </form>
+    </div>
+</div>

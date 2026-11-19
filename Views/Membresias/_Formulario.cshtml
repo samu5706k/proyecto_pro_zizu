@@ -1,0 +1,92 @@
+
+@model gimnasio.Models.Membresia
+
+<div asp-validation-summary="ModelOnly"
+     class="text-danger mb-3"></div>
+
+<input type="hidden" asp-for="Id" />
+
+<div class="row g-3">
+
+    <div class="col-md-12">
+        <label asp-for="ClienteId" class="form-label"></label>
+
+        <select asp-for="ClienteId" class="form-select">
+            <option value="0">Selecciona un socio</option>
+
+            @foreach (var c in (IReadOnlyList<gimnasio.Models.Cliente>)ViewBag.Clientes)
+            {
+                <option value="@c.Id">
+                    @c.NombreCompleto - CI: @c.Ci
+                </option>
+            }
+        </select>
+
+        <span asp-validation-for="ClienteId"
+              class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="Plan" class="form-label"></label>
+
+        <select asp-for="Plan" class="form-select">
+            <option value="Mensual">Mensual</option>
+            <option value="Trimestral">Trimestral</option>
+            <option value="Semestral">Semestral</option>
+            <option value="Anual">Anual</option>
+        </select>
+
+        <span asp-validation-for="Plan"
+              class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="Precio" class="form-label"></label>
+
+        <input asp-for="Precio"
+               type="number"
+               min="0.01"
+               step="0.01"
+               class="form-control" />
+
+        <span asp-validation-for="Precio"
+              class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="FechaInicio"
+               class="form-label"></label>
+
+        <input asp-for="FechaInicio"
+               type="date"
+               class="form-control" />
+
+        <span asp-validation-for="FechaInicio"
+              class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="FechaVencimiento"
+               class="form-label"></label>
+
+        <input asp-for="FechaVencimiento"
+               type="date"
+               class="form-control" />
+
+        <span asp-validation-for="FechaVencimiento"
+              class="text-danger"></span>
+    </div>
+
+    <div class="col-md-12">
+        <div class="form-check form-switch">
+            <input asp-for="Activa"
+                   class="form-check-input" />
+
+            <label asp-for="Activa"
+                   class="form-check-label">
+                Membresía activa
+            </label>
+        </div>
+    </div>
+
+</div>

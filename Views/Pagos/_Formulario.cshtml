@@ -1,0 +1,93 @@
+
+@model gimnasio.Models.Pago
+
+<div asp-validation-summary="ModelOnly"
+     class="text-danger mb-3"></div>
+
+<input type="hidden" asp-for="Id" />
+
+<div class="row g-3">
+
+    <div class="col-md-12">
+        <label asp-for="MembresiaId"
+               class="form-label"></label>
+
+        <select asp-for="MembresiaId"
+                class="form-select">
+
+            <option value="0">
+                Selecciona una membresía
+            </option>
+
+            @foreach (var m in (IReadOnlyList<gimnasio.Models.Membresia>)ViewBag.Membresias)
+            {
+                <option value="@m.Id">
+                    @m.ClienteNombre - @m.Plan
+                    (Saldo: Bs @m.SaldoPendiente.ToString("N2"))
+                </option>
+            }
+        </select>
+
+        <span asp-validation-for="MembresiaId"
+              class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="FechaPago"
+               class="form-label"></label>
+
+        <input asp-for="FechaPago"
+               type="date"
+               class="form-control" />
+
+        <span asp-validation-for="FechaPago"
+              class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="Monto"
+               class="form-label"></label>
+
+        <input asp-for="Monto"
+               type="number"
+               min="0.01"
+               step="0.01"
+               class="form-control" />
+
+        <span asp-validation-for="Monto"
+              class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="Metodo"
+               class="form-label">
+            Método de pago
+        </label>
+
+        <select asp-for="Metodo"
+                class="form-select">
+            <option value="Efectivo">Efectivo</option>
+            <option value="QR">QR</option>
+            <option value="Transferencia">Transferencia</option>
+            <option value="Tarjeta">Tarjeta</option>
+        </select>
+
+        <span asp-validation-for="Metodo"
+              class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="Referencia"
+               class="form-label">
+            Referencia o comprobante
+        </label>
+
+        <input asp-for="Referencia"
+               class="form-control"
+               placeholder="Opcional" />
+
+        <span asp-validation-for="Referencia"
+              class="text-danger"></span>
+    </div>
+
+</div>
