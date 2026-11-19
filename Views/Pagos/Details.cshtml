@@ -1,0 +1,54 @@
+
+@model gimnasio.Models.Pago
+
+@{
+    ViewData["Title"] = "Detalle de pago";
+}
+
+<h2 class="mb-3">Detalle del pago</h2>
+
+<div class="card">
+    <div class="card-body">
+
+        <dl class="row">
+
+            <dt class="col-sm-4">Número de pago</dt>
+            <dd class="col-sm-8">@Model.Id</dd>
+
+            <dt class="col-sm-4">Socio</dt>
+            <dd class="col-sm-8">@Model.ClienteNombre</dd>
+
+            <dt class="col-sm-4">Membresía</dt>
+            <dd class="col-sm-8">@Model.Plan</dd>
+
+            <dt class="col-sm-4">Fecha</dt>
+            <dd class="col-sm-8">
+                @Model.FechaPago.ToString("dd/MM/yyyy")
+            </dd>
+
+            <dt class="col-sm-4">Monto pagado</dt>
+            <dd class="col-sm-8">
+                Bs @Model.Monto.ToString("N2")
+            </dd>
+
+            <dt class="col-sm-4">Método</dt>
+            <dd class="col-sm-8">@Model.Metodo</dd>
+
+            <dt class="col-sm-4">Referencia</dt>
+            <dd class="col-sm-8">@Model.Referencia</dd>
+
+        </dl>
+
+        <a asp-action="Edit"
+           asp-route-id="@Model.Id"
+           class="btn btn-primary">
+            Editar
+        </a>
+
+        <a asp-action="Index"
+           class="btn btn-secondary">
+            Volver
+        </a>
+
+    </div>
+</div>

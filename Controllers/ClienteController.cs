@@ -1,7 +1,7 @@
-
 using gimnasio.Models;
 using gimnasio.Services;
 using Microsoft.AspNetCore.Mvc;
+using MySqlConnector;
 
 namespace gimnasio.Controllers;
 
@@ -121,6 +121,7 @@ public class ClienteController : Controller
     }
 
     // DELETE: eliminar definitivamente
+    
     [HttpPost]
     [ActionName("Delete")]
     [ValidateAntiForgeryToken]
@@ -129,9 +130,21 @@ public class ClienteController : Controller
         var cliente = _repo.ObtenerPorId(id);
 
         if (cliente == null)
-            return NotFound();
+        return NotFound();
 
-        _repo.Eliminar(id);
+        try
+        {
+            _repo.Eliminar(id);
+        }
+        catch (MySqlException ex) when (ex.Number == 1451)
+        {
+        TempData["Error"] =
+            "No se puede eliminar este cliente porque "
+            + "tiene membresías registradas. "
+            + "Puedes editarlo y marcarlo como inactivo.";
+
+        return RedirectToAction(nameof(Index));
+        }
 
         TempData["Exito"] =
             $"Cliente {cliente.NombreCompleto} eliminado correctamente.";

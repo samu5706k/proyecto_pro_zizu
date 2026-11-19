@@ -1,23 +1,38 @@
-
 using gimnasio.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// Registrar el repositorio de entrenadores.
+// Repositorios 
 builder.Services.AddScoped<EntrenadorRepositorio>();
-
-// Registra el repositorio de Cliente
 builder.Services.AddScoped<ClienteRepositorio>();
-
-// Registrar el repositorio de Administradores
 builder.Services.AddScoped<AdministradorRepositorio>();
+builder.Services.AddScoped<LoginRepositorio>();
+builder.Services.AddScoped<ProductoRepositorio>();
+builder.Services.AddScoped<MembresiaRepositorio>();
+builder.Services.AddScoped<PagoRepositorio>();
+
+// Autenticación
+builder.Services
+    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Login";
+        options.AccessDeniedPath = "/Login";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy =
+            CookieSecurePolicy.SameAsRequest;
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+        options.SlidingExpiration = true;
+    });
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -27,13 +42,15 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+// Autenticación antes de autorización
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
+    pattern: "{controller=Login}/{action=Index}/{id?}")
     .WithStaticAssets();
 
 app.Run();

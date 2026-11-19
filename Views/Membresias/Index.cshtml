@@ -1,0 +1,135 @@
+
+@model IEnumerable<gimnasio.Models.Membresia>
+
+@{
+    ViewData["Title"] = "Membresías";
+    string? buscar = ViewBag.Buscar as string;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>
+        <i class="bi bi-calendar-check"></i>
+        Gestión de membresías
+    </h2>
+
+    <a asp-action="Create" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i>
+        Nueva membresía
+    </a>
+</div>
+
+@if (TempData["Exito"] is string exito)
+{
+    <div class="alert alert-success">@exito</div>
+}
+
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger">@error</div>
+}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form asp-action="Index" method="get"
+              class="d-flex gap-2">
+
+            <input type="text"
+                   name="buscar"
+                   value="@buscar"
+                   class="form-control"
+                   placeholder="Buscar por cliente, CI o plan" />
+
+            <button type="submit"
+                    class="btn btn-primary">
+                Buscar
+            </button>
+
+            <a asp-action="Index"
+               class="btn btn-outline-secondary">
+                Limpiar
+            </a>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+
+        @if (!Model.Any())
+        {
+            <div class="alert alert-info">
+                No hay membresías registradas.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Socio</th>
+                            <th>Plan</th>
+                            <th>Inicio</th>
+                            <th>Vencimiento</th>
+                            <th>Precio</th>
+                            <th>Pagado</th>
+                            <th>Saldo</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var m in Model)
+                        {
+                            <tr>
+                                <td>@m.Id</td>
+                                <td>@m.ClienteNombre</td>
+                                <td>@m.Plan</td>
+                                <td>@m.FechaInicio.ToString("dd/MM/yyyy")</td>
+                                <td>@m.FechaVencimiento.ToString("dd/MM/yyyy")</td>
+                                <td>Bs @m.Precio.ToString("N2")</td>
+                                <td>Bs @m.TotalPagado.ToString("N2")</td>
+                                <td>Bs @m.SaldoPendiente.ToString("N2")</td>
+
+                                <td>
+                                    <span class="badge bg-secondary">
+                                        @m.Estado
+                                    </span>
+                                </td>
+
+                                <td class="text-nowrap">
+                                    <a asp-action="Details"
+                                       asp-route-id="@m.Id"
+                                       class="btn btn-sm btn-info">
+                                        Ver
+                                    </a>
+
+                                    <a asp-action="Edit"
+                                       asp-route-id="@m.Id"
+                                       class="btn btn-sm btn-primary">
+                                        Editar
+                                    </a>
+
+                                    <a asp-action="Delete"
+                                       asp-route-id="@m.Id"
+                                       class="btn btn-sm btn-danger">
+                                        Eliminar
+                                    </a>
+
+                                    <a asp-controller="Pagos"
+                                       asp-action="Create"
+                                       asp-route-membresiaId="@m.Id"
+                                       class="btn btn-sm btn-success">
+                                        Registrar pago
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

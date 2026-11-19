@@ -1,0 +1,54 @@
+
+@model gimnasio.Models.Producto
+
+@{
+    ViewData["Title"] = "Detalles del producto";
+}
+
+<h2 class="mb-3">Detalles del producto</h2>
+
+<div class="card">
+    <div class="card-body">
+
+        <dl class="row">
+
+            <dt class="col-sm-3">ID</dt>
+            <dd class="col-sm-9">@Model.Id</dd>
+
+            <dt class="col-sm-3">Nombre</dt>
+            <dd class="col-sm-9">@Model.Nombre</dd>
+
+            <dt class="col-sm-3">Categoría</dt>
+            <dd class="col-sm-9">@Model.Categoria</dd>
+
+            <dt class="col-sm-3">Descripción</dt>
+            <dd class="col-sm-9">@Model.Descripcion</dd>
+
+            <dt class="col-sm-3">Precio</dt>
+            <dd class="col-sm-9">
+                @Model.Precio.ToString("N2") Bs
+            </dd>
+
+            <dt class="col-sm-3">Stock disponible</dt>
+            <dd class="col-sm-9">@Model.Stock</dd>
+
+            <dt class="col-sm-3">Estado</dt>
+            <dd class="col-sm-9">
+                @(Model.Activo ? "Activo" : "Inactivo")
+            </dd>
+
+        </dl>
+
+        <a asp-action="Edit"
+           asp-route-id="@Model.Id"
+           class="btn btn-primary">
+            Editar producto
+        </a>
+
+        <a asp-action="Index"
+           class="btn btn-secondary">
+            Volver
+        </a>
+
+    </div>
+</div>

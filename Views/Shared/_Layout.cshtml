@@ -54,6 +54,36 @@
                                 <i class="bi bi-person-badge"></i> Administradores
                             </a>
                         </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark"
+                               asp-controller="Productos"
+                               asp-action="Index">
+                                <i class="bi bi-box-seam"></i>
+                                    Productos
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark"
+                                asp-controller="Membresias"
+                                asp-action="Index">
+                                    <i class="bi bi-calendar-check"></i>
+                                        Membresías
+
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark"
+                                asp-controller="Pagos"
+                                asp-action="Index">
+                                    <i class="bi bi-cash-coin"></i>
+                                        Pagos
+                            </a>
+                        </li>
+
+
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Estadisticas" asp-action="Index">
                                 <i class="bi bi-bar-chart-line-fill"></i> Estadísticas
@@ -67,6 +97,33 @@
                         </li>
 
                     </ul>
+
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <form asp-controller="Login"
+          asp-action="Salir"
+          method="post"
+          class="d-flex align-items-center ms-auto">
+
+        @Html.AntiForgeryToken()
+
+        <button type="submit"
+                class="btn btn-danger">
+            <i class="bi bi-box-arrow-right"></i>
+            Cerrar sesión
+        </button>
+    </form>
+}
+else
+{
+    <a asp-controller="Login"
+       asp-action="Index"
+       class="btn btn-primary ms-auto">
+        <i class="bi bi-box-arrow-in-right"></i>
+        Iniciar sesión
+    </a>
+}
+
                 </div>
             </div>
         </nav>

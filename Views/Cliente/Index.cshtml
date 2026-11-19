@@ -1,4 +1,3 @@
-
 @model IEnumerable<Cliente>
 
 @{
@@ -7,43 +6,97 @@
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Gestión de clientes</h2>
+    <h2>
+        <i class="bi bi-people-fill"></i>
+        Gestión de clientes
+    </h2>
+
     <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-person-plus"></i>
         Registrar cliente
     </a>
 </div>
 
+@* MENSAJE DE REGISTRO O ACTUALIZACIÓN EXITOSA *@
 @if (TempData["Exito"] is string mensaje)
 {
-    <div class="alert alert-success">@mensaje</div>
+    <div class="alert alert-success alert-dismissible fade show"
+         role="alert">
+
+        <i class="bi bi-check-circle-fill"></i>
+        @mensaje
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Cerrar">
+        </button>
+    </div>
 }
 
+@* MENSAJE DE ERROR AL ELIMINAR CLIENTES CON MEMBRESÍAS *@
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger alert-dismissible fade show"
+         role="alert">
+
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        @error
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Cerrar">
+        </button>
+    </div>
+}
+
+@* BUSCADOR DE CLIENTES *@
 <div class="card mb-4">
     <div class="card-body">
-        <form method="get" asp-action="Index" class="d-flex gap-2">
-            <input type="text" name="buscar" value="@buscar"
+
+        <form method="get"
+              asp-action="Index"
+              class="d-flex gap-2">
+
+            <input type="text"
+                   name="buscar"
+                   value="@buscar"
                    class="form-control"
                    placeholder="Buscar por nombre, CI, teléfono o correo" />
 
-            <button type="submit" class="btn btn-dark">Buscar</button>
+            <button type="submit"
+                    class="btn btn-dark">
+                <i class="bi bi-search"></i>
+                Buscar
+            </button>
 
-            <a asp-action="Index" class="btn btn-outline-secondary">
+            <a asp-action="Index"
+               class="btn btn-outline-secondary">
                 Limpiar
             </a>
+
         </form>
     </div>
 </div>
 
+@* LISTADO DE CLIENTES *@
 <div class="card">
     <div class="card-body">
+
         @if (!Model.Any())
         {
-            <p>No hay clientes registrados o no se encontraron resultados.</p>
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i>
+                No hay clientes registrados o no se encontraron resultados.
+            </div>
         }
         else
         {
             <div class="table-responsive">
+
                 <table class="table table-hover align-middle">
+
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -55,42 +108,80 @@
                             <th>Acciones</th>
                         </tr>
                     </thead>
+
                     <tbody>
+
                         @foreach (var c in Model)
                         {
                             <tr>
                                 <td>@c.Id</td>
-                                <td>@c.NombreCompleto</td>
+
+                                <td>
+                                    <strong>
+                                        @c.NombreCompleto
+                                    </strong>
+                                </td>
+
                                 <td>@c.Ci</td>
+
                                 <td>@c.Telefono</td>
+
                                 <td>@c.Email</td>
+
                                 <td>
                                     @if (c.Activo)
                                     {
-                                        <span class="badge bg-success">Activo</span>
+                                        <span class="badge bg-success">
+                                            Activo
+                                        </span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-secondary">Inactivo</span>
+                                        <span class="badge bg-secondary">
+                                            Inactivo
+                                        </span>
                                     }
                                 </td>
+
                                 <td class="text-nowrap">
-                                    <a asp-action="Details" asp-route-id="@c.Id"
-                                       class="btn btn-sm btn-info">Ver</a>
 
-                                    <a asp-action="Edit" asp-route-id="@c.Id"
-                                       class="btn btn-sm btn-primary">Editar</a>
+                                    <a asp-action="Details"
+                                       asp-route-id="@c.Id"
+                                       class="btn btn-sm btn-info">
+                                        <i class="bi bi-eye"></i>
+                                        Ver
+                                    </a>
 
-                                    <a asp-action="Delete" asp-route-id="@c.Id"
-                                       class="btn btn-sm btn-danger">Eliminar</a>
+                                    <a asp-action="Edit"
+                                       asp-route-id="@c.Id"
+                                       class="btn btn-sm btn-primary">
+                                        <i class="bi bi-pencil-square"></i>
+                                        Editar
+                                    </a>
+
+                                    <a asp-action="Delete"
+                                       asp-route-id="@c.Id"
+                                       class="btn btn-sm btn-danger">
+                                        <i class="bi bi-trash"></i>
+                                        Eliminar
+                                    </a>
+
                                 </td>
                             </tr>
                         }
+
                     </tbody>
+
                 </table>
+
             </div>
 
-            <p class="text-muted">Total mostrado: @Model.Count()</p>
+            <p class="text-muted mt-3">
+                <i class="bi bi-people"></i>
+                Total de clientes mostrados:
+                <strong>@Model.Count()</strong>
+            </p>
         }
+
     </div>
 </div>
