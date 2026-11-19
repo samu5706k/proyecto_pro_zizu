@@ -1,61 +1,52 @@
-# Sistema de Gestión de Gimnasio 
+Sistema de Gestión de Gimnasio — Proyecto Sizu
 
- . Requisitos
+Sistema web desarrollado en ASP.NET Core 9.0 y MariaDB/MySQL para administrar clientes, entrenadores, administradores, productos, membresías y pagos.
 
-Para ejecutar el proyecto necesitas tener instalado:
+1. Requisitos
 
-- ".NET 9 SDK" (https://dotnet.microsoft.com/download/dotnet/9.0)
+- ".NET SDK 9" (https://dotnet.microsoft.com/download/dotnet/9.0)
 - "Visual Studio Code" (https://code.visualstudio.com/)
-- "XAMPP" (https://www.apachefriends.org/) para utilizar MySQL.
+- "XAMPP" (https://www.apachefriends.org/)
+- Git
 
- # Instalación y ejecución
+2. Clonar el proyecto
 
-## 1. Descargar el proyecto
-
-Clonar el repositorio desde GitHub:
+Abrir una terminal y ejecutar:
 
 git clone https://github.com/samu5706k/proyecto_pro_zizu.git
+cd proyecto_pro_zizu
+code .
 
-Abrir la carpeta del proyecto en Visual Studio Code.
+3. Configurar la base de datos
 
-## 2. Iniciar MySQL
+1. Abrir XAMPP e iniciar MySQL.
+2. Importar "base.sql" para crear "gimnasio_db".
+3. Ejecutar los archivos SQL de la carpeta "Migraciones", en orden:
+   - "001_credenciales_admin.sql"
+   - "002_productos.sql"
+   - "003_membresias_pagos.sql"
 
-- Abrir XAMPP.
-- Iniciar el servicio MySQL.
-- Verificar que esté funcionando en el puerto "3306".
+4. Configurar la conexión
 
-## 3. Crear la base de datos
-
-- Abrir phpMyAdmin.
-- Importar el archivo "base.sql" incluido en el proyecto.
-- Verificar que se haya creado la base de datos "gimnasio_db".
-
-## 4. Configurar la conexión
-
-Abrir una terminal en la carpeta del proyecto y ejecutar:
+Desde la carpeta que contiene "gimnasio.csproj", ejecutar:
 
 dotnet user-secrets init
+dotnet user-secrets set "ConnectionStrings:Gimnasio" "Server=127.0.0.1;Port=3306;Database=gimnasio_db;User ID=root;Password=;"
 
-Después, configurar la conexión a MySQL:
+Configuración para XAMPP local, con usuario root sin contraseña. Modificar si corresponde.
 
-dotnet user-secrets set "ConnectionStrings:Gimnasio" "Server=127.0.0.1;Port=3306;Database=gimnasio_db;User ID=root;Password=;SslMode=None;"
-
-Esta configuración corresponde a XAMPP con el usuario root sin contraseña.
-
-## 5. Instalar dependencias
+5. Ejecutar el proyecto
 
 dotnet restore
-
-## 6. Ejecutar el proyecto
-
+dotnet build
 dotnet run
 
-Abrir en el navegador la dirección local que aparece en la terminal, por ejemplo:
+Abrir en el navegador:
 
-"https://localhost:7000"
+http://localhost:5211
 
-Importante
+6. Inicio de sesión
 
-Cada computadora debe tener instalado .NET 9 y MySQL, además de configurar su propia conexión a la base de datos.
+Se necesita un administrador activo con correo y contraseña configurados en la base de datos. En una instalación nueva se deben crear las credenciales iniciales de forma segura antes de ingresar.
 
-Si se desea compartir la misma información entre varias computadoras, se necesita utilizar una base de datos alojada en un servidor compartido.
+Nota: cada integrante debe configurar su propia base de datos y conexión local. Las credenciales no deben subirse a GitHub.
