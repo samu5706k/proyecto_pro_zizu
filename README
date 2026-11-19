@@ -13,33 +13,33 @@ Sistema web desarrollado en ASP.NET Core 9.0 y MariaDB/MySQL para administrar cl
 
 Abrir una terminal y ejecutar:
 
+```
 git clone https://github.com/samu5706k/proyecto_pro_zizu.git
 cd proyecto_pro_zizu
 code .
+```
 
 3. Configurar la base de datos
 
 1. Abrir XAMPP e iniciar MySQL.
 2. Importar "base.sql" para crear "gimnasio_db".
-3. Ejecutar los archivos SQL de la carpeta "Migraciones", en orden:
-   - "001_credenciales_admin.sql"
-   - "002_productos.sql"
-   - "003_membresias_pagos.sql"
 
-4. Configurar la conexión
+3. Configurar la conexión
 
 Desde la carpeta que contiene "gimnasio.csproj", ejecutar:
 
+```
 dotnet user-secrets init
 dotnet user-secrets set "ConnectionStrings:Gimnasio" "Server=127.0.0.1;Port=3306;Database=gimnasio_db;User ID=root;Password=;"
+```
 
 Configuración para XAMPP local, con usuario root sin contraseña. Modificar si corresponde.
 
 5. Ejecutar el proyecto
 
-dotnet restore
-dotnet build
+```
 dotnet run
+```
 
 Abrir en el navegador:
 
