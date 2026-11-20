@@ -78,16 +78,20 @@
 
     <div class="col-md-6">
         <label asp-for="Referencia"
-               class="form-label">
-            Referencia o comprobante
+            class="form-label">
+            Referencia o comprobante *
         </label>
 
         <input asp-for="Referencia"
-               class="form-control"
-               placeholder="Opcional" />
+            class="form-control"
+            placeholder="Ingrese el número de referencia"
+            maxlength="80"
+            required />
 
         <span asp-validation-for="Referencia"
-              class="text-danger"></span>
-    </div>
+          class="text-danger"></span>
 
-</div>
+        <small class="text-muted">
+            Campo obligatorio para registrar el pago.
+        </small>
+    </div>

@@ -55,12 +55,11 @@ La base de datos del proyecto se llama:
 
 Para una instalación nueva:
 
-1. Importar el archivo `base.sql` incluido en el proyecto.
-2. Ejecutar los archivos SQL adicionales de la carpeta `Migraciones`, en este orden:
-   - `001_credenciales_admin.sql`
-   - `002_productos.sql`
-   - `003_membresias_pagos.sql`
+1. Revisar `base.sql` y eliminar las sentencias `INSERT` de demostración que incluyen un administrador y un hash de contraseña antes de distribuirlo.
+2. Importar **una sola vez** el archivo `base.sql` incluido en el proyecto para crear las siete tablas.
 3. Comprobar que se hayan creado las tablas.
+
+**Nota:** este ZIP no contiene carpeta `Migraciones`: las siete tablas ya están definidas en `base.sql`. No ejecutes `base.sql` otra vez si ya tienes datos en `gimnasio_db`.
 
 **Tablas del sistema:**
 
@@ -110,7 +109,7 @@ Ejecutar:
 
 Ejecutar:
 
-`dotnet run`
+`dotnet run --launch-profile http`
 
 Abrir la dirección que aparezca en la terminal. En la configuración actual del proyecto:
 
@@ -166,7 +165,7 @@ La base de datos local de una computadora no se comparte automáticamente con la
 
 Para compartir registros entre varias computadoras, se necesita un servidor de base de datos compartido y configurado de forma segura.
 
-Los archivos SQL de migración permiten reproducir la estructura de las tablas, pero no contienen los registros personales.
+`base.sql` contiene la estructura de las tablas, pero también dos `INSERT` de demostración (administrador y hash): retíralos antes de publicar el proyecto. No lo vuelvas a ejecutar sobre una base que ya contiene datos.
 
 La versión `MySqlConnector 2.4.0` tiene una advertencia de seguridad `NU1902` conocida. El proyecto puede compilar, pero esta dependencia debe actualizarse antes de utilizar el sistema en producción.
 

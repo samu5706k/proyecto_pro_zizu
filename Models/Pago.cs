@@ -27,7 +27,8 @@ public class Pago
     [Display(Name = "Método de pago")]
     public string Metodo { get; set; } = "Efectivo";
 
-    [StringLength(80)]
+    [Required(ErrorMessage = "Debes ingresar la referencia o comprobante del pago.")]
+    [StringLength(80, ErrorMessage = "La referencia no puede superar los 80 caracteres.")]
     [Display(Name = "Referencia / Comprobante")]
     public string Referencia { get; set; } = "";
 

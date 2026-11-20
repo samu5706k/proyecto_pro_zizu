@@ -2,12 +2,13 @@ using gimnasio.Models;
 using gimnasio.Services;
 using Microsoft.AspNetCore.Mvc;
 using MySqlConnector;
+using Microsoft.AspNetCore.Authorization;
 
 namespace gimnasio.Controllers;
 
+[Authorize(Roles = "Administrador")]
 public class ClienteController : Controller
-{
-    private readonly ClienteRepositorio _repo;
+{    private readonly ClienteRepositorio _repo;
 
     public ClienteController(ClienteRepositorio repo)
     {

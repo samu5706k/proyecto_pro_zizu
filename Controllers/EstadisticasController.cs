@@ -2,9 +2,11 @@
 using gimnasio.Models;
 using gimnasio.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace gimnasio.Controllers;
 
+[Authorize(Roles = "Administrador")]
 public class EstadisticasController : Controller
 {
     private readonly ClienteRepositorio _clientes;

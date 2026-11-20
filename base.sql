@@ -118,6 +118,7 @@ CREATE TABLE IF NOT EXISTS gimnasio_db.membresias (
         CHECK (FechaVencimiento >= FechaInicio)
 ) ENGINE=InnoDB;
 
+
 -- PAGOS DE MEMBRESÍAS
 CREATE TABLE IF NOT EXISTS gimnasio_db.pagos (
     Id INT NOT NULL AUTO_INCREMENT,
@@ -125,7 +126,7 @@ CREATE TABLE IF NOT EXISTS gimnasio_db.pagos (
     FechaPago DATE NOT NULL,
     Monto DECIMAL(10,2) NOT NULL,
     Metodo VARCHAR(30) NOT NULL,
-    Referencia VARCHAR(80) NOT NULL DEFAULT '',
+    Referencia VARCHAR(80) NOT NULL,
 
     PRIMARY KEY (Id),
 
@@ -137,8 +138,13 @@ CREATE TABLE IF NOT EXISTS gimnasio_db.pagos (
         ON DELETE RESTRICT,
 
     CONSTRAINT chk_pagos_monto
-        CHECK (Monto > 0)
+        CHECK (Monto > 0),
+
+    CONSTRAINT chk_pagos_referencia
+        CHECK (CHAR_LENGTH(TRIM(Referencia)) > 0)
+
 ) ENGINE=InnoDB;
+
 
 INSERT INTO gimnasio_db.administradores (Nombre, Apellido, Ci, Telefono, Email, Cargo, NivelAcceso, Activo)
 VALUES ('Limber', 'Jhon', '62591006', '77777777', 'limber@gmail.com', 'Administrador', 'Completo', 1);

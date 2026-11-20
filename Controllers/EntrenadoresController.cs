@@ -1,9 +1,11 @@
 using gimnasio.Models;
 using gimnasio.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace gimnasio.Controllers;
 
+[Authorize(Roles = "Administrador")]
 public class EntrenadoresController : Controller
 {
     private readonly EntrenadorRepositorio _repo;
